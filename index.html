@@ -436,7 +436,7 @@ function abrirModalAcompanhamento(id) {
 
   // Função para buscar o status do pedido
   const buscarStatus = () => {
-    fetch(`http://localhost:8080/pre-venda/${id}`)
+    fetch(`http://cassiaserver.duckdns.org/pre-venda/${id}`)
       .then(res => {
         if (!res.ok) throw new Error("Erro ao buscar status");
         return res.json();
@@ -621,7 +621,7 @@ async function finalizar() {
 
   try {
   // Enviando dados para o servidor (Firestore)
-  const response = await fetch('http://localhost:8080/pre-venda', {
+  const response = await fetch('http://cassiaserver.duckdns.org/pre-venda', {
     method: 'POST', // Método de envio
     headers: {
       'Content-Type': 'application/json', // Define o tipo do conteúdo
@@ -658,7 +658,7 @@ async function finalizar() {
 
 async function carregarEstoque() {
   try {
-    const r = await fetch('http://localhost:8080/estoque', {
+    const r = await fetch('http://cassiaserver.duckdns.org/estoque', {
       cache: 'no-store'
     });
     if (!r.ok) return;
