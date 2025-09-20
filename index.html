@@ -436,7 +436,7 @@ function abrirModalAcompanhamento(id) {
 
   // Função para buscar o status do pedido
   const buscarStatus = () => {
-    fetch(`http://cassiaserver.duckdns.org/pre-venda/${id}`)
+    fetch(`https://cassiaserver.duckdns.org/pre-venda/${id}`)
       .then(res => {
         if (!res.ok) throw new Error("Erro ao buscar status");
         return res.json();
@@ -621,7 +621,7 @@ async function finalizar() {
 
   try {
   // Enviando dados para o servidor (Firestore)
-  const response = await fetch('http://cassiaserver.duckdns.org/pre-venda', {
+  const response = await fetch('https://cassiaserver.duckdns.org/pre-venda', {
     method: 'POST', // Método de envio
     headers: {
       'Content-Type': 'application/json', // Define o tipo do conteúdo
@@ -658,7 +658,7 @@ async function finalizar() {
 
 async function carregarEstoque() {
   try {
-    const r = await fetch('http://cassiaserver.duckdns.org/estoque', {
+    const r = await fetch('https://cassiaserver.duckdns.org/estoque', {
       cache: 'no-store'
     });
     if (!r.ok) return;
@@ -794,7 +794,7 @@ function comprovante() {
     const mensagem = `Olá! Estou enviando o comprovante do pedido.\n\n🧾 *ID do Pedido:* ${idPedido}\n👤 *Nome:* ${nomeCliente}\n📦 *Pedido:* ${pedido}\n💰 *Total:* ${total}\n\n📎 *Dados para PIX:*\n🔐 *Chave:* ${chavePix}\n🏦 *Banco:* ${banco}\n👤 *Titular:* ${nomeTitular}`;
 
     // Redireciona para o WhatsApp com a mensagem preenchida
-    const url = `https://wa.me/${telefone}?text=${encodeURIComponent(mensagem)}`;
+    const url = `httpss://wa.me/${telefone}?text=${encodeURIComponent(mensagem)}`;
     window.open(url, '_blank');
   }
 
