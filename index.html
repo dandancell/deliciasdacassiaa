@@ -1,0 +1,901 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Delícias da Cássia • Pedidos</title>
+  <style>
+    :root{--bg:#f7f5ef;--ink:#222;--muted:#666;--card:#fff;--brand:#000;--line:#e7e1d2;--accent:#111}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Arial}
+    header{position:sticky;top:0;background:var(--brand);color:#fff;padding:10px 16px 14px;z-index:10;text-align:center}
+    header img{height:84px;width:auto;display:block;margin:6px auto 4px}
+    header h1{margin:0;font-size:18px;letter-spacing:.5px}
+    .pill{display:inline-block;padding:4px 8px;border:1px solid #ddd;border-radius:999px;font-size:12px;color:#555;background:#fafafa;margin-top:6px}
+    .wrap{max-width:1100px;margin:0 auto;padding:16px}
+    .grid{display:grid;grid-template-columns:1fr 360px;gap:14px}
+    @media(max-width:980px){.grid{grid-template-columns:1fr}}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;box-shadow:0 1px 0 rgba(0,0,0,.03)}
+    h2{margin:6px 0 10px;font-size:16px;letter-spacing:.06em;text-transform:uppercase}
+    .muted{color:var(--muted);font-size:13px}
+    .item{display:grid;grid-template-columns:1fr 90px 90px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px dashed var(--line)}
+    .item:last-child{border-bottom:0}
+    .name{font-weight:500}
+    .price{text-align:right;color:#333}
+    .qty{display:flex;gap:6px;justify-content:flex-end;align-items:center}
+    .qty button{width:28px;height:28px;border:1px solid #ccc;background:#fff;border-radius:8px;cursor:pointer}
+    .qty input{width:46px;text-align:center;border:1px solid #ccc;border-radius:8px;height:28px}
+    label{font-size:14px;color:#333}
+    input[type=text],input[type=tel],select,textarea{width:100%;padding:10px 12px;border:1px solid #ccc;border-radius:10px;background:#fff}
+    textarea{min-height:84px}
+    .cart{position:sticky;top:110px}
+    .cart .row{display:flex;justify-content:space-between;margin:6px 0;color:#333}
+    .cart .row.total{font-weight:700;font-size:18px;border-top:1px solid #eee;padding-top:8px}
+    .btn{display:inline-flex;justify-content:center;align-items:center;width:100%;padding:14px 16px;border:none;border-radius:12px;background:var(--accent);color:#fff;font-weight:700;cursor:pointer;margin-top:8px;font-size:16px}
+    .btn[disabled]{opacity:.45;pointer-events:none}
+    footer{padding:26px 16px;text-align:center;color:#888}
+    .pixbox{border:1px dashed var(--line);background:#fcfbf7;border-radius:12px;padding:10px;margin-top:8px}
+    .pixgrid{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+    .copy{border:1px solid #ccc;background:#fff;border-radius:10px;padding:6px 10px;cursor:pointer}
+    .ok{color:#0a7a0a;font-weight:700}
+    .hide{display:none}
+    .promo{background:#fff7d6;border:1px dashed #e5cf89;color:#5a4700;border-radius:12px;padding:10px;margin:10px 0;font-weight:600;text-align:center}
+    .sold{opacity:.55} .sold .price{ text-decoration: line-through; color:#999 } .sold .qty{ display:none }
+    .sold .name::after{ content:"  (ESGOTADO)"; color:#a60000; font-weight:700; font-size:13px }
+
+    .modal-acompanhamento {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 10px;
+  width: 500px;
+  max-width: 90%;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  position: relative;
+}
+
+.fechar {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.popup-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.popup-content h2 {
+  margin-top: 0;
+}
+
+.popup-content p {
+  margin-bottom: 10px;
+  font-size: 1rem;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.status-verde {
+  color: green;
+  font-weight: bold;
+}
+
+.status-amarelo {
+  color: goldenrod;
+  font-weight: bold;
+}
+
+.status-vermelho {
+  color: red;
+  font-weight: bold;
+}
+
+.motivoRecusa {
+  color: red;
+  font-weight: bold;
+}
+
+.campoMotivo {
+  color: red;
+  font-weight: bold;
+}
+
+.pill.aberto {
+  background-color: #4caf50; /* verde */
+  color: white;
+}
+
+.pill.fechado {
+  background-color: #f44336; /* vermelho */
+  color: white;
+}
+
+
+  </style>
+</head>
+<body>
+<header>
+  <img src="logo.png" alt="Logo Delícias da Cássia">
+  <h1>DELÍCIAS DA CÁSSIA • Pedidos</h1>
+  <span id="hoursPill" class="pill">Aberto • 10h–20h</span>
+</header>
+
+<div class="wrap grid">
+  <main class="card">
+    <div id="promoBox" class="promo hide">PROMO</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:center;margin-bottom:6px">
+      <div><span class="pill">Entrega conforme bairro</span></div>
+      <div style="text-align:right"><span class="pill">WhatsApp: (81) 99479-8426</span></div>
+    </div>
+
+    <section id="pratos">
+      <h2>Pratos Individuais</h2>
+      <div class="item" data-id="empadao"><div class="name">Mini Empadão de Frango com Requeijão</div><div class="price" data-price="20.00">R$ 20,00</div><div class="qty"><button onclick="chg(this,-1)">−</button><input type="number" min="0" value="0"><button onclick="chg(this,1)">+</button></div></div>
+      <div class="item" data-id="lasanha"><div class="name">Lasanha</div><div class="price" data-price="20.00">R$ 20,00</div><div class="qty"><button onclick="chg(this,-1)">−</button><input type="number" min="0" value="0"><button onclick="chg(this,1)">+</button></div></div>
+      <div class="item" data-id="escondidinho"><div class="name">Escondidinho de Charque</div><div class="price" data-price="20.00">R$ 20,00</div><div class="qty"><button onclick="chg(this,-1)">−</button><input type="number" min="0" value="0"><button onclick="chg(this,1)">+</button></div></div>
+      <div class="item" data-id="macarrao"><div class="name">Macarrão na Pressão</div><div class="price" data-price="15.00">R$ 15,00</div><div class="qty"><button onclick="chg(this,-1)">−</button><input type="number" min="0" value="0"><button onclick="chg(this,1)">+</button></div></div>
+    </section>
+
+    <section id="porcoes-ind">
+      <h2>Porções Individuais <span class="muted">R$ 20,00</span></h2>
+      <div class="muted" style="margin:-4px 0 8px">Serve 1 pessoa • Acompanha: arroz, farofa e vinagrete</div>
+      <div class="item" data-id="feijoada_ind"><div class="name">Feijoada</div><div class="price" data-price="20.00">R$ 20,00</div><div class="qty"><button onclick="chg(this,-1)">−</button><input type="number" min="0" value="0"><button onclick="chg(this,1)">+</button></div></div>
+      <div class="item" data-id="dobradinha_ind"><div class="name">Dobradinha</div><div class="price" data-price="20.00">R$ 20,00</div><div class="qty"><button onclick="chg(this,-1)">−</button><input type="number" min="0" value="0"><button onclick="chg(this,1)">+</button></div></div>
+      <div class="item" data-id="sarapatel_ind"><div class="name">Sarapatel</div><div class="price" data-price="20.00">R$ 20,00</div><div class="qty"><button onclick="chg(this,-1)">−</button><input type="number" min="0" value="0"><button onclick="chg(this,1)">+</button></div></div>
+      <div class="item" data-id="marisco_ind"><div class="name">Marisco</div><div class="price" data-price="20.00">R$ 20,00</div><div class="qty"><button onclick="chg(this,-1)">−</button><input type="number" min="0" value="0"><button onclick="chg(this,1)">+</button></div></div>
+    </section>
+
+    <section id="porcoes-500">
+      <h2>Porções (500 ml) <span class="muted">R$ 30,00</span></h2>
+      <div class="muted" style="margin:-4px 0 8px">Servem até 2 pessoas • Acompanha: arroz, farofa e vinagrete</div>
+      <div class="item" data-id="feijoada_500"><div class="name">Feijoada</div><div class="price" data-price="30.00">R$ 30,00</div><div class="qty"><button onclick="chg(this,-1)">−</button><input type="number" min="0" value="0"><button onclick="chg(this,1)">+</button></div></div>
+      <div class="item" data-id="dobradinha_500"><div class="name">Dobradinha</div><div class="price" data-price="30.00">R$ 30,00</div><div class="qty"><button onclick="chg(this,-1)">−</button><input type="number" min="0" value="0"><button onclick="chg(this,1)">+</button></div></div>
+      <div class="item" data-id="sarapatel_500"><div class="name">Sarapatel</div><div class="price" data-price="30.00">R$ 30,00</div><div class="qty"><button onclick="chg(this,-1)">−</button><input type="number" min="0" value="0"><button onclick="chg(this,1)">+</button></div></div>
+      <div class="item" data-id="marisco_500"><div class="name">Marisco</div><div class="price" data-price="30.00">R$ 30,00</div><div class="qty"><button onclick="chg(this,-1)">−</button><input type="number" min="0" value="0"><button onclick="chg(this,1)">+</button></div></div>
+    </section>
+
+    <section id="porcoes-1000">
+      <h2>Porções (1000 ml) <span class="muted">R$ 55,00</span></h2>
+      <div class="muted" style="margin:-4px 0 8px">Servem até 4 pessoas • Acompanha: arroz, farofa e vinagrete</div>
+      <div class="item" data-id="feijoada_1000"><div class="name">Feijoada</div><div class="price" data-price="55.00">R$ 55,00</div><div class="qty"><button onclick="chg(this,-1)">−</button><input type="number" min="0" value="0"><button onclick="chg(this,1)">+</button></div></div>
+      <div class="item" data-id="dobradinha_1000"><div class="name">Dobradinha</div><div class="price" data-price="55.00">R$ 55,00</div><div class="qty"><button onclick="chg(this,-1)">−</button><input type="number" min="0" value="0"><button onclick="chg(this,1)">+</button></div></div>
+      <div class="item" data-id="sarapatel_1000"><div class="name">Sarapatel</div><div class="price" data-price="55.00">R$ 55,00</div><div class="qty"><button onclick="chg(this,-1)">−</button><input type="number" min="0" value="0"><button onclick="chg(this,1)">+</button></div></div>
+      <div class="item" data-id="marisco_1000"><div class="name">Marisco</div><div class="price" data-price="55.00">R$ 55,00</div><div class="qty"><button onclick="chg(this,-1)">−</button><input type="number" min="0" value="0"><button onclick="chg(this,1)">+</button></div></div>
+    </section>
+
+    <section id="extras">
+      <h2>Porções Extras</h2>
+      <div class="item" data-id="arroz_p"><div class="name">Arroz P</div><div class="price" data-price="4.00">R$ 4,00</div><div class="qty"><button onclick="chg(this,-1)">−</button><input type="number" min="0" value="0"><button onclick="chg(this,1)">+</button></div></div>
+      <div class="item" data-id="arroz_g"><div class="name">Arroz G</div><div class="price" data-price="8.00">R$ 8,00</div><div class="qty"><button onclick="chg(this,-1)">−</button><input type="number" min="0" value="0"><button onclick="chg(this,1)">+</button></div></div>
+      <div class="item" data-id="farofa"><div class="name">Farofa</div><div class="price" data-price="4.00">R$ 4,00</div><div class="qty"><button onclick="chg(this,-1)">−</button><input type="number" min="0" value="0"><button onclick="chg(this,1)">+</button></div></div>
+      <div class="item" data-id="embalagem"><div class="name">Embalagem</div><div class="price" data-price="2.00">R$ 2,00</div><div class="qty"><button onclick="chg(this,-1)">−</button><input type="number" min="0" value="0"><button onclick="chg(this,1)">+</button></div></div>
+    </section>
+
+    <section id="sobremesa">
+      <h2>Sobremesa</h2>
+      <div class="item" data-id="pudim"><div class="name">Pudim de Leite</div><div class="price" data-price="7.00">R$ 7,00</div><div class="qty"><button onclick="chg(this,-1)">−</button><input type="number" min="0" value="0"><button onclick="chg(this,1)">+</button></div></div>
+    </section>
+
+    <section id="bebidas">
+      <h2>Bebidas</h2>
+      <div class="item" data-id="coca_lata"><div class="name">Coca-Cola Lata 350 ml</div><div class="price" data-price="5.00">R$ 5,00</div><div class="qty"><button onclick="chg(this,-1)">−</button><input type="number" min="0" value="0"><button onclick="chg(this,1)">+</button></div></div>
+      <div class="item" data-id="guarana_lata"><div class="name">Guaraná Antarctica Lata 350 ml</div><div class="price" data-price="5.00">R$ 5,00</div><div class="qty"><button onclick="chg(this,-1)">−</button><input type="number" min="0" value="0"><button onclick="chg(this,1)">+</button></div></div>
+      <div class="item" data-id="fanta_lata"><div class="name">Fanta Lata 350 ml</div><div class="price" data-price="5.00">R$ 5,00</div><div class="qty"><button onclick="chg(this,-1)">−</button><input type="number" min="0" value="0"><button onclick="chg(this,1)">+</button></div></div>
+      <div class="item" data-id="coca_1l"><div class="name">Coca-Cola PET 1 L</div><div class="price" data-price="8.00">R$ 8,00</div><div class="qty"><button onclick="chg(this,-1)">−</button><input type="number" min="0" value="0"><button onclick="chg(this,1)">+</button></div></div>
+      <div class="item" data-id="guarana_1l"><div class="name">Guaraná Antarctica PET 1 L</div><div class="price" data-price="8.00">R$ 8,00</div><div class="qty"><button onclick="chg(this,-1)">−</button><input type="number" min="0" value="0"><button onclick="chg(this,1)">+</button></div></div>
+      <div class="item" data-id="coca_2l"><div class="name">Coca-Cola PET 2 L</div><div class="price" data-price="13.00">R$ 13,00</div><div class="qty"><button onclick="chg(this,-1)">−</button><input type="number" min="0" value="0"><button onclick="chg(this,1)">+</button></div></div>
+    </section>
+  </main>
+
+  <aside class="card cart">
+    <h2>Seu Pedido</h2>
+    <div id="cartItems" class="muted">Nenhum item ainda.</div>
+    <div class="row"><span>Subtotal</span><span id="subtotal">R$ 0,00</span></div>
+    <div class="row"><span>Entrega</span><span id="frete">R$ 0,00</span></div>
+    <div class="row total"><span>Total</span><span id="total">R$ 0,00</span></div>
+
+    <div style="margin-top:10px">
+      <h2>Entrega ou Retirada</h2>
+      <select id="tipo" onchange="onTipoChange()">
+        <option value="retirada">Retirada no local</option>
+        <option value="entrega">Entrega</option>
+      </select>
+      <div id="enderecoBox" class="hide" style="margin-top:10px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div><label>Rua e número</label><input id="rua" type="text" placeholder="Rua, nº"></div>
+          <div>
+            <label>Bairro</label>
+            <select id="bairroSel" onchange="selecionarBairro()"></select>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
+          <div><label>Complemento</label><input id="compl" type="text" placeholder="Apto/Casa/Ref."></div>
+          <div><label>Taxa de entrega</label><div id="taxaView" class="pill" style="height:40px;display:flex;align-items:center;justify-content:center">R$ 0,00</div></div>
+        </div>
+        <input id="taxa" type="hidden" value="0">
+        <div class="small">A taxa é definida automaticamente de acordo com o bairro escolhido.</div>
+      </div>
+    </div>
+
+    <div style="margin-top:10px">
+      <h2>Seus Dados</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div><label>Nome</label><input id="nome" type="text" placeholder="Seu nome"></div>
+        <div><label>WhatsApp</label><input id="fone" type="tel" placeholder="(DDD) 9xxxx-xxxx"></div>
+      </div>
+      <div style="margin-top:8px">
+        <label>Observações</label>
+        <textarea id="obs" placeholder="Ex.: sem coentro, entregar às 12h..."></textarea>
+      </div>
+    </div>
+
+    <div style="margin-top:10px">
+      <h2>Pagamento</h2>
+      <select id="pagamento" onchange="onPagamentoChange()">
+        <option value="pix">PIX</option>
+        <option value="dinheiro">Dinheiro</option>
+        <option value="cartao">Cartão (na entrega/retirada)</option>
+      </select>
+
+      <div id="pixBox" class="pixbox hide">
+        <div class="pixgrid">
+          <div><strong>Chave PIX:</strong> <span id="pixKey">032.552.024-00</span></div>
+          <button class="copy" onclick="copyPix()">Copiar</button>
+        </div>
+        <div><strong>Banco:</strong> Stone</div>
+        <div><strong>Titular:</strong> Cássia Bezerra dos Santos</div>
+        <div class="small ok">Envie o comprovante para confirmar o pedido.</div>
+      </div>
+
+      <div id="trocoBox" class="hide" style="margin-top:8px">
+        <label>Troco para (R$)</label>
+        <input id="troco" type="text" placeholder="Ex.: 50,00">
+      </div>
+    </div>
+
+    <button id="sendBtn" class="btn" onclick="abrirConfirmacao()" disabled>Enviar pedido </button>
+    <div class="small">Selecione o bairro para liberar o envio quando for entrega.</div>
+  </aside>
+</div>
+
+<!-- Modal de Acompanhamento -->
+<div id="acompanhamentoModal" class="modal-acompanhamento" style="display: none;">
+  <div class="modal-content">
+    <span id="fecharModal" class="fechar">&times;</span>
+    <h2>Status do Pedido</h2>
+    <p><strong>ID do pedido:</strong> <span id="modalPedidoId"></span></p>
+    <p><strong>Nome:</strong> <span id="nomee"></span></p>
+    <p><strong>Status atual:</strong> <span id="statusPedido">Carregando...</span></p>
+    <p id="campoMotivo" style="display: none;">
+  <strong>Motivo:</strong>
+  <span id="motivoRecusa" style="color: red; font-weight: bold; font-size: 24px;">Carregando...</span>
+</p>
+    <p id="enderecoColeta" style="display: none;">
+  <strong>Endereço de Coleta:</strong>
+  <span id="enderecoColetaTexto" style="color: green; font-weight: bold;">Rua da Loja, nº 123, Centro – Ponto de coleta</span>
+</p>
+    
+    <p><strong>Pedido:</strong> <span id="Pedido">Carregando...</span></p>
+    <p><strong>pagamento:</strong> <span id="pagamentoo">Carregando...</span></p>
+    <p><strong>Total:</strong> <span id="totall">Carregando...</span></p>
+
+
+    <div id="pixExtraInfo" style="display: none; margin-top: 10px;">
+  <p><strong>🔐 Chave PIX:</strong> 000.000.000-00</p>
+  <p><strong>🔐 Nome:</strong> Cássia Bezerra Dos Santos</p>
+  <p><strong>🔐 Banco</strong> STONE</p>
+  <p><strong>O pedido so será confirmado após o envio do comprovante:</strong> WhatsApp (81) 98660-7100</p>
+  <button id="sendBtn" class="btn" onclick="comprovante()" enable>Enviar comprovante </button>
+</div>
+
+
+  </div>
+</div>
+
+<footer>
+  <div id="footerBrand" class="small">Delícias da Cássia • Mustardinha - Recife • © 2025 • Instagram: @deliciasdacassia • Atendimento 10h–20h</div>
+</footer>
+
+<div id="confirmarPedidoPopup" class="popup-overlay" style="display: none;">
+  <div class="popup-content">
+    <span class="close-btn" onclick="fecharConfirmacao()">×</span>
+    <h2>Confirmar Pedido</h2>
+    <div id="dadosConfirmacao"></div>
+    <button class="btn btn-aceitar" onclick="confirmarPedido()">Confirmar Pedido</button>
+  </div>
+</div>
+
+
+<div id="lojaFechadaModal" style="display:none; position:fixed; z-index:1000; top:0; left:0; width:100vw; height:100vh; background-color:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
+  <div style="background:white; padding:20px; border-radius:8px; max-width:90%; text-align:center;">
+    <h2 style="margin-bottom:10px;">Loja Fechada</h2>
+    <p style="margin-bottom:20px;">Desculpe, estamos fechados no momento. Por favor, volte durante o horário de atendimento.</p>
+    <button onclick="fecharLojaFechadaModal()" style="padding:10px 20px; background-color:#cc0000; color:white; border:none; border-radius:5px; cursor:pointer;">
+      OK
+    </button>
+  </div>
+</div>
+
+<script>
+function chg(btn,delta){const i=btn.parentElement.querySelector('input'); let v=parseInt(i.value||0)+delta; if(v<0)v=0; i.value=v; recalc();}
+function parseMoney(v){ if(!v) return 0; v=(''+v).replace('R$','').replace('.','').replace(',','.'); v=parseFloat(v); return isNaN(v)?0:v; }
+function formatBR(n){ return 'R$ '+n.toFixed(2).replace('.',','); }
+function recalc(){
+  const items=[...document.querySelectorAll('.item')]; let subtotal=0; const list=[];
+  items.forEach(it=>{ const q=parseInt(it.querySelector('input')?.value||0);
+    if(q>0){ const name=it.querySelector('.name').textContent.trim(); const price=parseFloat(it.querySelector('.price')?.dataset.price||'0');
+      subtotal+=price*q; list.push(`${q}× ${name} — ${formatBR(price)}`);
+    }});
+  const taxa=parseMoney(document.getElementById('taxa')?.value);
+  document.getElementById('cartItems').innerHTML=list.length? list.map(x=>'• '+x).join('<br>') : 'Nenhum item ainda.';
+  document.getElementById('subtotal').textContent=formatBR(subtotal);
+  document.getElementById('frete').textContent=formatBR(taxa||0);
+  document.getElementById('total').textContent=formatBR(subtotal+(taxa||0));
+  updateSendState();
+}
+function onTipoChange(){ const tipo=document.getElementById('tipo').value; document.getElementById('enderecoBox').classList.toggle('hide', tipo!=='entrega'); updateSendState(); }
+const BAIRROS = [
+  { bairro: "Mustardinha", taxa: "3,00" },
+  { bairro: "Mangueira", taxa: "4,00" },
+  { bairro: "Afogados", taxa: "4,00" },
+  { bairro: "Bongi", taxa: "4,00" },
+  { bairro: "San Martins", taxa: "5,00" }
+];
+function populateBairroSelect(){
+  const sel = document.getElementById('bairroSel');
+  sel.innerHTML='';
+  const firstOpt=document.createElement('option');
+  firstOpt.value=''; firstOpt.textContent='Selecione o bairro';
+  sel.appendChild(firstOpt);
+  BAIRROS.forEach(r=>{
+    const op=document.createElement('option');
+    op.value=r.bairro+'|'+r.taxa;
+    op.textContent=r.bairro;
+    sel.appendChild(op);
+  });
+}
+populateBairroSelect();
+function selecionarBairro(){
+  const sel=document.getElementById('bairroSel');
+  const val=sel.value;
+  let taxa='0,00';
+  if(val && val.includes('|')){ taxa = val.split('|')[1]; }
+  document.getElementById('taxa').value = taxa;
+  document.getElementById('taxaView').textContent = 'R$ ' + (''+taxa).replace('.',',');
+  recalc();
+  updateSendState();
+}
+function updateSendState(){
+  const tipo=document.getElementById('tipo').value;
+  const send=document.getElementById('sendBtn');
+  if(tipo==='retirada'){ send.disabled=false; return; }
+  const hasBairro = !!document.getElementById('bairroSel').value;
+  send.disabled = !hasBairro;
+}
+function onPagamentoChange(){
+  const v=document.getElementById('pagamento').value;
+  document.getElementById('trocoBox').classList.toggle('hide', v!=='dinheiro');
+  document.getElementById('pixBox').classList.toggle('hide', v!=='pix');
+}
+function copyPix(){
+  const k = document.getElementById('pixKey').textContent.trim();
+  navigator.clipboard.writeText(k).then(()=>{ alert('Chave PIX copiada!'); });
+
+  
+
+
+}
+
+
+let intervaloAtualizacao = null;
+
+function abrirModalAcompanhamento(id) {
+  document.getElementById('modalPedidoId').innerText = id;
+  document.getElementById('acompanhamentoModal').style.display = 'flex';
+
+  // Função para buscar o status do pedido
+  const buscarStatus = () => {
+    fetch(`http://localhost:8080/pre-venda/${id}`)
+      .then(res => {
+        if (!res.ok) throw new Error("Erro ao buscar status");
+        return res.json();
+      })
+      .then(data => {
+  let status = data.venda.status || 'Status desconhecido';
+  let pagamento = data.venda.pagamento || 'Status desconhecido';
+  let motivo = data.venda.motivoRecusa || 'Motivo não informado';
+
+  if (status.toLowerCase().trim() === 'em rota') {
+    status = 'Em rota de entrega';
+  }
+
+  const statusEl = document.getElementById('statusPedido');
+statusEl.innerText = status;
+
+// Limpa classes anteriores
+statusEl.classList.remove('status-verde', 'status-amarelo', 'status-vermelho');
+
+const tipoPedido = data.venda.tipo || ''; // Certifique-se de que esse campo existe na API
+
+if (tipoPedido.toLowerCase().trim() === 'retirada') {
+  document.getElementById('enderecoColeta').style.display = 'block';
+} else {
+  document.getElementById('enderecoColeta').style.display = 'none';
+}
+
+// Aplica cor com base no status
+const statusLower = status.toLowerCase().trim();
+if (statusLower === 'pendente') {
+  statusEl.classList.add('status-amarelo');
+} else if (statusLower === 'em preparo' || statusLower === 'em rota' || statusLower === 'em rota de entrega') {
+  statusEl.classList.add('status-verde');
+} else if (statusLower === 'recusado') {
+  statusEl.classList.add('status-vermelho');
+} else if (statusLower === 'entregue') {
+  statusEl.classList.add('status-verde');
+}  else if (statusLower === 'pronto') {
+  statusEl.classList.add('status-verde');
+}
+
+  // Define os textos normalmente
+  document.getElementById('statusPedido').innerText = status;
+  document.getElementById('nomee').innerText = data.venda.nome || 'Status desconhecido';
+  document.getElementById('Pedido').innerText = data.venda.cartLines || 'Status desconhecido';
+  document.getElementById('pagamentoo').innerText = pagamento;
+  document.getElementById('totall').innerText = data.venda.total || 'Status desconhecido';
+
+  // Mostrar ou esconder campo de motivo com base no status
+  if (status.toLowerCase().trim() === 'recusado') {
+    document.getElementById('campoMotivo').style.display = 'block';
+    document.getElementById('motivoRecusa').innerText = motivo;
+  } else {
+    document.getElementById('campoMotivo').style.display = 'none';
+  }
+
+  // Mostrar campos extras se for PIX
+  if (pagamento.toLowerCase().trim() === 'pix') {
+    document.getElementById('pixExtraInfo').style.display = 'block';
+  } else {
+    document.getElementById('pixExtraInfo').style.display = 'none';
+  }
+      })
+      .catch(err => {
+        document.getElementById('statusPedido').innerText = 'Erro';;
+        document.getElementById('nomee').innerText = 'Erro ao buscar status.';
+        document.getElementById('Pedido').innerText = 'Erro ao buscar status.';
+        document.getElementById('pagamentoo').innerText = 'Erro';;
+        document.getElementById('totall').innerText = 'Erro ao buscar status.';
+        console.error(err);
+      });
+  };
+
+  // Buscar status imediatamente
+  buscarStatus();
+
+  // Atualizar a cada 10 segundos
+  intervaloAtualizacao = setInterval(buscarStatus, 10000);
+}
+
+function verificarPedidoEIniciarAcompanhamento() {
+  const pedidoInfo = localStorage.getItem('pedidoInfo');
+
+  if (pedidoInfo) {
+    const { id, expira } = JSON.parse(pedidoInfo);
+
+    if (Date.now() < expira) {
+      abrirModalAcompanhamento(id);
+    } else {
+      localStorage.removeItem('pedidoInfo');
+    }
+  }
+}
+
+// Fechar modal
+document.getElementById('fecharModal').addEventListener('click', () => {
+  document.getElementById('acompanhamentoModal').style.display = 'none';
+
+  // Parar o intervalo
+  if (intervaloAtualizacao) {
+    clearInterval(intervaloAtualizacao);
+  }
+});
+
+// Iniciar verificação ao carregar a página
+window.addEventListener('DOMContentLoaded', verificarPedidoEIniciarAcompanhamento);
+
+
+
+
+async function finalizar() {
+  recalc();
+  
+  // Pegando dados do formulário
+  const whats = '5581994798426';
+  const tipo = document.getElementById('tipo').value;
+  const nome = document.getElementById('nome').value.trim();
+  const fone = document.getElementById('fone').value.trim();
+  const obs = document.getElementById('obs').value.trim();
+  const pagamento = document.getElementById('pagamento').value;
+  const troco = document.getElementById('troco').value.trim();
+  const rua = document.getElementById('rua').value.trim();
+  const bairroSel = document.getElementById('bairroSel');
+  const bairroTxt = bairroSel.options[bairroSel.selectedIndex]?.text || '';
+  const subtotal = document.getElementById('subtotal').textContent;
+  const frete = document.getElementById('frete').textContent;
+  const total = document.getElementById('total').textContent;
+  const cartLines = document.getElementById('cartItems').innerHTML.replaceAll('<br>', '\n');
+  const Complemento = document.getElementById('compl').value.trim();
+  
+  const totalValue = parseMoney(total);
+  const trocoo = troco ? parseMoney(troco) : 0;
+
+  // Calcular a diferença entre o troco e o total
+  const troc = trocoo - totalValue;
+
+  // Se a diferença for negativa, troco deve ser 0 (não pode ser valor negativo)
+  const trocoFinal = troc >= 0 ? troc : 0;
+
+
+  const trocoFormatado = trocoFinal.toFixed(2).replace('.', ',');
+
+
+  if (!nome) {
+    alert('Informe seu nome.');
+    return;
+  }
+  if (tipo === 'retirada' && !bairroTxt) {
+    data.bairro = bairroTxt;
+    return;
+  }
+
+  
+  
+
+  // Dados para enviar ao servidor (Firestore)
+  const data = { nome, total, cartLines };
+
+  if (tipo === 'entrega') {
+    data.bairro = bairroTxt;
+    data.rua = rua;
+    data.frete = frete;
+    data.Complemento = Complemento;
+  }
+
+  if (tipo !== 'entrega') {
+    data.tipo = 'Retirada';
+    
+  }
+
+  if (pagamento === 'dinheiro') {
+    data.pagamento = pagamento;
+    data.troco = `R$${trocoFormatado}`; // Aqui o valor de troco vai ser o número convertido
+  }
+
+  if (pagamento === 'pix' || 'Cartão (na entrega/retirada)') {
+    data.pagamento = pagamento;
+  }
+
+ 
+
+
+  try {
+  // Enviando dados para o servidor (Firestore)
+  const response = await fetch('http://localhost:8080/pre-venda', {
+    method: 'POST', // Método de envio
+    headers: {
+      'Content-Type': 'application/json', // Define o tipo do conteúdo
+    },
+    body: JSON.stringify(data), 
+  });
+
+  const result = await response.json(); // Espera a resposta do servidor e converte para JSON
+
+ if (response.ok) {
+  // Quando a venda é registrada com sucesso, abre o WhatsApp
+  
+
+  // Agora, pega o ID do pedido da resposta corretamente
+ const pedidoId = result.data.id;
+
+  // Define a validade para 3 horas (em milissegundos)
+  const validade = Date.now() + 3 * 60 * 60 * 1000;
+
+  // Armazena um objeto com ID e validade como JSON
+  localStorage.setItem('pedidoInfo', JSON.stringify({ id: pedidoId, expira: validade }));
+
+  verificarPedidoEIniciarAcompanhamento()
+  
+} else {
+    alert('Erro ao registrar a venda: ' + result.error);
+  }
+} catch (error) {
+  console.error('Erro ao enviar a requisição:', error);
+  alert('Erro ao registrar a venda');
+}
+}
+
+
+async function carregarEstoque() {
+  try {
+    const r = await fetch('http://localhost:8080/estoque', {
+      cache: 'no-store'
+    });
+    if (!r.ok) return;
+    
+    const resposta = await r.json();
+    const data = resposta.data || {};
+
+    aplicarEsgotados(data.itens || {});
+    aplicarPromo(data.promo || {});
+    aplicarBranding(data.branding || {});
+  } catch (e) {
+    console.error('Erro ao carregar estoque:', e);
+  }
+}
+
+function aplicarEsgotados(map){
+  Object.entries(map).forEach(([id, disponivel])=>{
+    const el = document.querySelector(`.item[data-id="${id}"]`);
+    if(!el) return;
+    if(disponivel === false){
+      el.classList.add('sold');
+      const input = el.querySelector('input[type="number"]');
+      if(input){ input.value = 0; input.disabled = true; }
+      el.querySelectorAll('button').forEach(b=> b.disabled = true);
+    }else{
+      el.classList.remove('sold');
+      const input = el.querySelector('input[type="number"]');
+      if(input){ input.disabled = false; }
+      el.querySelectorAll('button').forEach(b=> b.disabled = false);
+    }
+  });
+  if(typeof recalc === 'function') recalc();
+}
+function aplicarPromo(promo){
+  const box = document.getElementById('promoBox');
+  if(promo && promo.enabled && promo.text){
+    box.textContent = promo.text;
+    box.classList.remove('hide');
+  }else{
+    box.classList.add('hide');
+  }
+}
+function aplicarBranding(b) {
+  const hours = b?.hours || '10h–20h';
+  const insta = b?.instagram || '@deliciasdacassia';
+  const loc = b?.location || 'Mustardinha - Recife';
+  const fechamento = b?.fechamento || '';
+  const dias = b?.dias || ['sábado', 'domingo', 'sexta-feira']; // dias da semana em que funciona
+
+  // Atualiza branding no rodapé
+  document.getElementById('footerBrand').textContent =
+    `Delícias da Cássia • ${loc} • © 2025 • Instagram: ${insta} • Atendimento ${hours}`;
+
+  // Atualiza status de aberto/fechado
+  atualizarStatusFuncionamento(hours, fechamento, dias);
+}
+
+
+function atualizarStatusFuncionamento(intervaloHoras, fechamento, diasPermitidos) {
+  const agora = new Date();
+  const diaSemanaAtual = agora.toLocaleDateString('pt-BR', { weekday: 'long' }).toLowerCase();
+  const horaAtual = agora.getHours();
+  const minutosAtuais = agora.getMinutes();
+
+  console.log('Dia atual:', diaSemanaAtual);
+  console.log('Hora atual:', horaAtual, 'Minutos atuais:', minutosAtuais);
+  console.log('Dias permitidos:', diasPermitidos);
+
+function parseHoraCompleta(str) {
+  const limpo = str.replace(/[^\d:]/g, '').trim(); // remove letras como "h", deixa só dígitos e ":"
+  const [hora, minuto = '0'] = limpo.split(':');
+  return {
+    hora: parseInt(hora, 10),
+    minuto: parseInt(minuto, 10)
+  };
+}
+
+const [inicioStr, fimStr] = intervaloHoras.split(/[-–]/);
+
+const inicio = parseHoraCompleta(inicioStr);
+const fim = parseHoraCompleta(fimStr);
+
+  console.log('Intervalo:', inicio, 'até', fim);
+
+  // Verifica se hoje é um dos dias permitidos
+  const funcionaHoje = diasPermitidos.map(d => d.toLowerCase()).includes(diaSemanaAtual);
+  console.log('Funciona hoje?', funcionaHoje);
+
+  // Verifica se está dentro do horário
+  const agoraEmMinutos = horaAtual * 60 + minutosAtuais;
+const inicioEmMinutos = inicio.hora * 60 + inicio.minuto;
+const fimEmMinutos = fim.hora * 60 + fim.minuto;
+
+const dentroDoHorario = agoraEmMinutos >= inicioEmMinutos && agoraEmMinutos <= fimEmMinutos;
+
+  console.log('Está dentro do horário?', dentroDoHorario);
+
+  const aberto = funcionaHoje && dentroDoHorario;
+  console.log('Aberto?', aberto);
+
+  const el = document.getElementById('hoursPill');
+
+  if (el) {
+    if (aberto) {
+      el.textContent = `🟢 Aberto agora! • Até as ${fechamento}`;
+      el.classList.add('pill-aberto');
+      el.classList.remove('pill-fechado');
+    } else {
+      const diasString = diasPermitidos.join(', ');
+      el.textContent = `🔴 Fechado no momento • Atendemos apenas em: ${diasString}, das ${intervaloHoras}`;
+      el.classList.add('pill-fechado');
+      el.classList.remove('pill-aberto');
+    }
+  }
+}
+
+populateBairroSelect();
+onTipoChange(); onPagamentoChange(); recalc(); carregarEstoque(); setInterval(carregarEstoque,20000);
+
+function comprovante() {
+    const chavePix = '000.000.000-00';
+    const nomeTitular = 'Cássia Bezerra Dos Santos';
+    const banco = 'STONE';
+    const telefone = '5581986607100'; // Número do WhatsApp (com DDI)
+
+    // Pegando dados já visíveis no modal
+    const nomeCliente = document.getElementById('nomee').innerText;
+    const total = document.getElementById('totall').innerText;
+    const pedido = document.getElementById('Pedido').innerText;
+    const idPedido = document.getElementById('modalPedidoId').innerText;
+
+    // Monta a mensagem
+    const mensagem = `Olá! Estou enviando o comprovante do pedido.\n\n🧾 *ID do Pedido:* ${idPedido}\n👤 *Nome:* ${nomeCliente}\n📦 *Pedido:* ${pedido}\n💰 *Total:* ${total}\n\n📎 *Dados para PIX:*\n🔐 *Chave:* ${chavePix}\n🏦 *Banco:* ${banco}\n👤 *Titular:* ${nomeTitular}`;
+
+    // Redireciona para o WhatsApp com a mensagem preenchida
+    const url = `https://wa.me/${telefone}?text=${encodeURIComponent(mensagem)}`;
+    window.open(url, '_blank');
+  }
+
+  
+  function abrirConfirmacao() {
+  const textoPill = document.getElementById('hoursPill')?.textContent || '';
+const match = textoPill.match(/das\s+([0-9h:–:\-]+)/i);
+const intervaloHoras = match ? match[1] : '10h–20h';
+
+if (!estaAbertoAgora(intervaloHoras)) {
+  mostrarLojaFechadaModal();
+  return;
+}
+
+  // --- Lógica de coleta dos dados (igual ao seu código original) ---
+  const tipo = document.getElementById('tipo').value;
+  const nome = document.getElementById('nome').value.trim();
+  const fone = document.getElementById('fone').value.trim();
+  const obs = document.getElementById('obs').value.trim();
+  const pagamento = document.getElementById('pagamento').value;
+  const troco = document.getElementById('troco').value.trim();
+  const rua = document.getElementById('rua').value.trim();
+  const bairroSel = document.getElementById('bairroSel');
+  const bairroTxt = bairroSel.options[bairroSel.selectedIndex]?.text || '';
+  const subtotal = document.getElementById('subtotal').textContent;
+  const frete = document.getElementById('frete').textContent;
+  const total = document.getElementById('total').textContent;
+  const cartLines = document.getElementById('cartItems').innerHTML.replaceAll('<br>', '\n');
+  const Complemento = document.getElementById('compl').value.trim();
+
+  let enderecoTexto = '';
+  if (tipo.toLowerCase() === 'retirada') {
+    enderecoTexto = 'Rua Apucarana 228 Recife – Ponto de coleta';
+  } else {
+    enderecoTexto = `${rua}, ${bairroTxt}, ${Complemento}`;
+  }
+
+  const dados = `
+    <p><strong>Tipo:</strong> ${tipo}</p>
+    <p><strong>Nome:</strong> ${nome}</p>
+    <p><strong>Telefone:</strong> ${fone}</p>
+    <p><strong>Endereço:</strong> ${enderecoTexto}</p>
+    <p><strong>Pagamento:</strong> ${pagamento}</p>
+    ${pagamento.toLowerCase() !== 'pix' ? `<p><strong>Troco:</strong> ${troco}</p>` : ''}
+    <p><strong>Subtotal:</strong> ${subtotal}</p>
+    <p><strong>Frete:</strong> ${frete}</p>
+    <p><strong>Total:</strong> ${total}</p>
+    <p><strong>Itens do Pedido:</strong><br><pre style="white-space: pre-wrap;">${cartLines}</pre></p>
+    <p><strong>Observações:</strong> ${obs || 'Nenhuma'}</p>
+  `;
+
+  document.getElementById('dadosConfirmacao').innerHTML = dados;
+  document.getElementById('confirmarPedidoPopup').style.display = 'flex';
+}
+
+function mostrarLojaFechadaModal() {
+  document.getElementById('lojaFechadaModal').style.display = 'flex';
+}
+
+function fecharLojaFechadaModal() {
+  document.getElementById('lojaFechadaModal').style.display = 'none';
+}
+
+
+function parseHoraCompleta(str) {
+  const limpo = str.replace(/[^\d:]/g, '').trim(); // remove "h" e outros
+  const [hora, minuto = '0'] = limpo.split(':');
+  return {
+    hora: parseInt(hora, 10),
+    minuto: parseInt(minuto, 10)
+  };
+}
+
+function estaAbertoAgora(intervaloHoras) {
+  const [inicioStr, fimStr] = intervaloHoras.split(/[-–]/); // hífen normal e travessão
+
+  if (!inicioStr || !fimStr) return false;
+
+  function parseHora(str) {
+    const limpo = str.replace(/[^\d:]/g, '').trim(); // remove "h", espaços, etc.
+    const [h, m = '0'] = limpo.split(':');
+    return parseInt(h) * 60 + parseInt(m);
+  }
+
+  const agora = new Date();
+  const agoraMin = agora.getHours() * 60 + agora.getMinutes();
+  const inicioMin = parseHora(inicioStr);
+  const fimMin = parseHora(fimStr);
+
+  return agoraMin >= inicioMin && agoraMin <= fimMin;
+}
+
+function fecharConfirmacao() {
+  const popup = document.getElementById('confirmarPedidoPopup');
+  if (popup) {
+    popup.style.display = 'none';
+  }
+}
+
+
+setInterval(abertoAgora, 10000)
+</script>
+</body>
+</html>
